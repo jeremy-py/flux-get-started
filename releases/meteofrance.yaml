@@ -14,4 +14,4 @@ spec:
   chart:
     git: ssh://git@github.com/jeremy-py/flux-get-started
     ref: master
-    path: charts/ghost
+    path: charts/app-http-chart-meteofrance
