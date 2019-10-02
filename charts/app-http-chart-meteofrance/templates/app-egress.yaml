@@ -12,7 +12,9 @@ spec:
     protocol: {{ .Values.app.remotePortProtocol }}
   resolution: STATIC
   endpoints:
-  - address: "185.86.168.114"
+  {{- range .Values.app.remoteServers }}
+  - address: {{ . }}
+  {{- end }}
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
