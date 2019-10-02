@@ -8,6 +8,7 @@ metadata:
     chart: app-http-chart-meteofrance
   annotations:
     flux.weave.works/automated: "true"
+    flux.weave.works/tag.chart-image: glob:master-*
 spec:
   releaseName: app-http-chart-meteofrance
   chart:
