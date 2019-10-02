@@ -13,8 +13,6 @@ spec:
   resolution: STATIC
   endpoints:
   - address: "185.86.168.114"
-
-
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
