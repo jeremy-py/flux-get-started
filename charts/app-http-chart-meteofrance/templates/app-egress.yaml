@@ -13,7 +13,7 @@ spec:
   resolution: STATIC
   endpoints:
   {{- range .Values.app.remoteServers }}
-  - address: {{ . }}
+  - address: "{{ . }}"
   {{- end }}
 ---
 apiVersion: networking.istio.io/v1alpha3
