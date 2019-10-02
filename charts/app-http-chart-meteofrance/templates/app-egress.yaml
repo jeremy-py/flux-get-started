@@ -12,9 +12,7 @@ spec:
     protocol: {{ .Values.app.remotePortProtocol }}
   resolution: STATIC
   endpoints:
-  {{- range .Values.app.remoteServers }}
   - address: "185.86.168.114"
-  {{- end }}
 
 
 ---
