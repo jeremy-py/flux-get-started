@@ -13,7 +13,7 @@ spec:
   resolution: STATIC
   endpoints:
   {{- range .Values.app.remoteServers }}
-  - address: {{ . }}
+  - address: "185.86.168.114"
   {{- end }}
 
 
