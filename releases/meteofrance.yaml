@@ -4,8 +4,10 @@ kind: HelmRelease
 metadata:
   name: meteofrance
   namespace: default
+  labels:
+    chart: app-http-chart-meteofrance
   annotations:
-    flux.weave.works/automated: "false"
+    flux.weave.works/automated: "true"
     flux.weave.works/tag.chart-image: glob:1.21.*
 spec:
   releaseName: meteofrance
