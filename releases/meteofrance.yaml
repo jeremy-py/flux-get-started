@@ -1,0 +1,15 @@
+---
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: meteofrance
+  namespace: demo
+  annotations:
+    flux.weave.works/automated: "false"
+    flux.weave.works/tag.chart-image: glob:1.21.*
+spec:
+  releaseName: meteofrance
+  chart:
+    git: ssh://git@github.com/jeremy-py/flux-get-started
+    ref: master
+    path: charts/app-http-chart-meteofrance
