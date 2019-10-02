@@ -1,0 +1,36 @@
+# Default values for mychart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+app:
+  host: www.meteofrance.com
+  portNumber: 80
+  portName: http
+  portProtocol: HTTP
+  remotePortNumber: 80
+  remotePortName: http
+  remotePortProtocol: HTTP
+  remoteServers:
+    - 185.86.168.114 
+
+
+
+branch:
+  - path: /accueil
+    method: (GET|POST|PUT|PATCH|DELETE)
+    waf: low
+    sqli: enabled
+    xss: enabled
+    cmdInjection: enabled
+    bot: high
+    realhost: www.meteofrance.com
+    xFrameOption: SAMEORIGIN
+  - path: /
+    method: POST
+    waf: medium
+    sqli: enabled
+    xss: disabled
+    cmdInjection: enabled
+    bot: low
+    realhost: www.meteofrance.com
+    xFrameOption: SAMEORIGIN

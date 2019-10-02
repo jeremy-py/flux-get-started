@@ -1,0 +1,72 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: se-{{ .Values.app.host | replace "." "-" }}
+spec:
+  hosts:
+  - {{ .Values.app.host }}
+  location: MESH_EXTERNAL
+  ports:
+  - number: {{ .Values.app.remotePortNumber }}
+    name: {{ .Values.app.remotePortName }}
+    protocol: {{ .Values.app.remotePortProtocol }}
+  resolution: STATIC
+  endpoints:
+  {{- range .Values.app.remoteServers }}
+  - address: {{ . }}
+  {{- end }}
+
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: vs-egress-{{ .Values.app.host | replace "." "-" }}
+spec:
+  hosts:
+  - istio-egressgateway.istio-system.svc.cluster.local
+  gateways:
+  - istio-egressgateway
+  http:
+  - match:
+    - headers:
+        realhost:
+          exact: {{ .Values.app.host }}
+    headers:
+      request:
+        set:
+          host: {{ .Values.app.host }}
+        remove:
+          - waf
+          - sqli
+          - cmdinjection 
+          - xss
+          - realhost
+    route:
+    - destination:
+        host: {{ .Values.app.host }}
+        #subset: www-meteofrance-com
+        port:
+          number: {{ .Values.app.remotePortNumber }}
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: dr-egress-{{ .Values.app.host | replace "." "-" }}
+spec:
+  host: {{ .Values.app.host }}
+  trafficPolicy:
+     loadBalancer:
+       consistentHash:
+         httpCookie:
+           name: mypersist
+           path: /
+           ttl: 0s
+     {{- if eq .Values.app.portProtocol "HTTPS"}}
+     tls:
+       mode: SIMPLE
+     {{- end }}
+ #subsets:
+ # - name: www-meteofrance-com
+

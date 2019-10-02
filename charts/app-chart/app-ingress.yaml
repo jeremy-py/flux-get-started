@@ -1,0 +1,91 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name:  gateway-ingress-{{ .Values.app.host | replace "." "-" }}
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: {{ .Values.app.portNumber }}
+      name: {{ .Values.app.portName }}
+      protocol: {{ .Values.app.portProtocol }}
+    hosts:
+    - {{ .Values.app.host }}
+    {{- if eq .Values.app.portProtocol "HTTPS"}}
+    tls:
+      mode: SIMPLE # enables HTTPS on this port
+      serverCertificate: /etc/istio/ingressgateway-certs/tls.crt
+      privateKey: /etc/istio/ingressgateway-certs/tls.key
+    {{- end }}
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: vs-ingress-{{ .Values.app.host | replace "." "-" }}
+spec:
+  hosts:
+  - {{ .Values.app.host }}
+  gateways:
+  - gateway-ingress-{{ .Values.app.host | replace "." "-" }}
+  - mesh
+  http:
+  {{- range .Values.branch }}        
+  - match:
+    - uri:
+        prefix: "{{ .path }}"
+      method:
+         regex: {{ .method }}
+    headers:
+      request:
+        add:
+          requestblocking: enabled
+          waf: {{ .waf }}
+          waf-sqli: {{ .sqli }}
+          waf-cmdinjection: {{ .cmdInjection }}
+          waf-xss: {{ .xss }}
+          realhost: {{ .realhost }}
+          #     set:
+          #host: botprotection.default.svc.cluster.local
+      response:
+        remove:
+          - Strict-Transport-Security
+          {{- if .xFrameOption }}
+          - x-frame-options
+          {{- end }}
+          {{- if .xXssProtection }}
+          - X-XSS-Protection
+          {{- end }}
+          {{- if .xContentTypeOptions }}
+          - X-Content-Type-Options
+          {{- end }}
+          {{- if .xContentSecurityPolicy }}
+          - X-Content-Security-Policy
+          {{- end }}
+        add:
+          Strict-Transport-Security: {{ .strictTransportSecurity }}
+          {{- if .xFrameOption }}
+          x-frame-options: {{ .xFrameOption }}
+          {{- end }}
+          {{- if .xXssProtection }}
+          X-XSS-Protection: {{ .xXssProtection }}
+          {{- end }}
+          {{- if .xContentTypeOptions }}
+          X-Content-Type-Options: {{ .xContentTypeOptions }}
+          {{- end }}
+          {{- if .xContentSecurityPolicy }}
+          X-Content-Security-Policy: {{ .xContentSecurityPolicy }}
+          {{- end }}
+        set:
+          server: toto
+    route:
+    - destination:
+        host: botprotection.default.svc.cluster.local
+        subset: {{ .bot }}
+        port:
+          number: 7777
+    {{- end }}
+# retries:
+#   attempts: 3
+#   perTryTimeout: 2s
